@@ -1,59 +1,66 @@
-
 import math
 
-AxMagStr = input("Enter the magnitude of the first vector:\n")
-AxAngleStr = input("Enter the angle of the first vector:\n")
-BxMagStr = input("Enter the magnitude of the second vector:\n")
-BxAngleStr = input("Enter the angle of the second vector:\n")
 
-# Convert the input values to numbers
-AxAngleDeg = int(AxAngleStr)
-BxAngleDeg = int(BxAngleStr)
-AxMag = int(AxMagStr)
-BxMag = int(BxMagStr)
+def read_number(prompt):
+    """Keep asking until the user enters a valid number."""
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Please enter a valid number (for example, 12 or 12.5).")
 
-# Convert angles from degrees to radians
-# Python's sin() and cos() functions use radians
-AxAngleRad = math.radians(AxAngleDeg)
-BxAngleRad = math.radians(BxAngleDeg)
 
-# Find the x and y components of the first vector
-AxAngleCos = math.cos(AxAngleRad)
-Ax = AxAngleCos * AxMag
+def main():
+    print("Vector Addition")
+    print("Angles are measured counterclockwise from the positive x-axis.")
+    print("Intermediate values are kept at full floating-point precision.\n")
 
-AxAngleSin = math.sin(AxAngleRad)
-Ay = AxAngleSin * AxMag
+    try:
+        ax_mag = read_number("Enter the magnitude of the first vector: ")
+        ax_angle_deg = read_number("Enter the angle of the first vector (degrees): ")
+        bx_mag = read_number("Enter the magnitude of the second vector: ")
+        bx_angle_deg = read_number("Enter the angle of the second vector (degrees): ")
+    except (KeyboardInterrupt, EOFError):
+        print("\nExiting vector addition.")
+        return
 
-# Find the x and y components of the second vector
-BxAngleCos = math.cos(BxAngleRad)
-Bx = BxAngleCos * BxMag
+    # Keep full-precision floating-point results for every intermediate step.
+    ax_angle = math.radians(ax_angle_deg)
+    bx_angle = math.radians(bx_angle_deg)
 
-BxAngleSin = math.sin(BxAngleRad)
-By = BxAngleSin * BxMag
+    ax = ax_mag * math.cos(ax_angle)
+    ay = ax_mag * math.sin(ax_angle)
+    bx = bx_mag * math.cos(bx_angle)
+    by = bx_mag * math.sin(bx_angle)
 
-# Add the x components and y components
-Cx = Ax + Bx
-Cy = Ay + By
+    cx = ax + bx
+    cy = ay + by
+    result_mag = math.hypot(cx, cy)
 
-# Square the x and y components
-Cxx = Cx * Cx
-Cyy = Cy * Cy
+    # atan2 uses the unrounded components and correctly handles all quadrants.
+    if cx == 0.0 and cy == 0.0:
+        result_angle = None
+    else:
+        result_angle = math.degrees(math.atan2(cy, cx)) % 360.0
+        if math.isclose(result_angle, 360.0, abs_tol=1e-10):
+            result_angle = 0.0
 
-# Add the squared components
-Cxy = Cxx + Cyy
+    print("\n--- Result (rounded only for display) ---")
+    print(f"First vector components: Ax = {ax:.10f}, Ay = {ay:.10f}")
+    print(f"Second vector components: Bx = {bx:.10f}, By = {by:.10f}")
+    print(f"Resultant x-component = {cx:.10f}")
+    print(f"Resultant y-component = {cy:.10f}")
+    print(f"Magnitude = {result_mag:.10f}")
+    if result_angle is None:
+        print("Direction = undefined (the resultant magnitude is zero)")
+    else:
+        print(f"Direction = {result_angle:.10f} degrees")
 
-# Find the magnitude of the resultant vector
-finalMag = math.sqrt(Cxy)
+    try:
+        input("\nPress Enter to close...")
+    except (KeyboardInterrupt, EOFError):
+        pass
 
-# Find the direction of the resultant vector
-# atan2() automatically handles the correct quadrant
-finalAngle = math.degrees(math.atan2(Cy, Cx))
 
-# Convert negative angles into the 0-360 degree range
-if finalAngle < 0:
-    finalAngle += 360
-
-print(f"Cx = {Cx}")
-print(f"Cy = {Cy}")
-print(f"Magnitude = {finalMag}")
-print(f"Direction = {finalAngle} degrees")
+if __name__ == "__main__":
+    main()
